@@ -150,7 +150,5 @@ Este projeto foi desenvolvido de forma colaborativa pela equipe responsável pel
 
 - **Isaac Salles Gonçalves** — [@totemicpuma](https://github.com/totemicpuma)
 - **Gian Verdan** — [@GianXim](https://github.com/GianXim)
-- **Matheus Vargas** — [@MV4rg4s](https://github.com/MV4rg4s)
 - **Fellipe** — [@Lxpxx](https://github.com/Lxpxx)
 - **Ray Gomes Pereira** — [@rayforgelab](https://github.com/rayforgelab)
-- **Arthur Miquelito** — *Miquelito Dev*
