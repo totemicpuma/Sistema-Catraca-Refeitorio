@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% block title %}Painel Master{% endblock %}
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Navegação estrutural">
+  <span>Master</span>
+</nav>
+{% endblock %}
+{% block header_title %}Painel Master{% endblock %}
+
+{% block content %}
+<div class="content-header">
+  <h3>Todos os Servidores</h3>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span style="font-size:var(--text-sm);color:var(--text-muted)">{{ servidores|length }} {{ 'servidor' if servidores|length == 1 else 'servidores' }} no total</span>
+    <a href="{{ url_for('cadastro_servidor') }}" class="btn btn-primary btn-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Novo Servidor
+    </a>
+  </div>
+</div>
+
+    {% set qtd_admins = servidores|selectattr('adm', 'equalto', true)|list|length %}
+    {% set qtd_expirados = servidores|selectattr('esta_expirado', 'equalto', true)|list|length %}
+    {% set qtd_ativos = servidores|length - qtd_expirados %}
+
+    <div class="kpi-grid" style="margin-bottom:var(--space-4)">
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--blue-light);color:var(--blue);" aria-hidden="true">👥</div>
+        <span class="kpi-valor" style="color:var(--blue)">{{ servidores|length }}</span>
+        <p>Total de Servidores</p>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--green-light);color:var(--green);" aria-hidden="true">✅</div>
+        <span class="kpi-valor" style="color:var(--green)">{{ qtd_ativos }}</span>
+        <p>Ativos</p>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--red-light);color:var(--red);" aria-hidden="true">⚠️</div>
+        <span class="kpi-valor" style="color:var(--red)">{{ qtd_expirados }}</span>
+        <p>Expirados</p>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--yellow-light);color:var(--yellow);" aria-hidden="true">👑</div>
+        <span class="kpi-valor" style="color:var(--yellow)">{{ qtd_admins }}</span>
+        <p>Administradores</p>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="busca-servidor" class="input" placeholder="Filtrar por nome ou matrícula..." oninput="filtrarServidores()" />
+      </div>
+      <div class="filter-wrapper">
+        <button class="filter-btn" onclick="toggleFiltros(this)" aria-label="Filtros" title="Filtros">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        </button>
+        <div class="filter-dropdown">
+          <div class="filter-group">
+            <label class="filter-label">Cargo</label>
+            <select id="filtro-cargo" onchange="filtrarServidores()">
+              <option value="">Todos</option>
+              <option value="admin">Admin</option>
+              <option value="servidor">Servidor</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Status</label>
+            <select id="filtro-status" onchange="filtrarServidores()">
+              <option value="">Todos</option>
+              <option value="ativo">Ativo</option>
+              <option value="vencendo">Próximo ao vencimento</option>
+              <option value="expirado">Expirado</option>
+              <option value="permanente">Permanente</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table id="tabela-servidores">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Matrícula</th>
+            <th>Expiração</th>
+            <th>Status</th>
+            <th>Cargo</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for servidor in servidores %}
+          <tr data-busca="{{ servidor.nome }} {{ servidor.matricula }}"
+              data-cargo="{% if servidor.adm %}admin{% else %}servidor{% endif %}"
+              data-status="{% if servidor.esta_expirado %}expirado{% elif servidor.data_expiracao and servidor.dias_restantes is not none and servidor.dias_restantes <= 7 %}vencendo{% elif servidor.data_expiracao %}ativo{% else %}permanente{% endif %}">
+            <td><strong>{{ servidor.nome }}</strong></td>
+            <td>{{ servidor.matricula }}</td>
+            <td>
+              {% if servidor.data_expiracao %}
+                {{ servidor.data_expiracao }}
+                {% if servidor.dias_restantes is not none %}
+                  <span style="display:block;font-size:var(--text-xs);color:{% if servidor.dias_restantes <= 7 %}var(--red){% else %}var(--text-muted){% endif %}">
+                    {{ servidor.dias_restantes }} {{ 'dia' if servidor.dias_restantes == 1 else 'dias' }} restantes
+                  </span>
+                {% endif %}
+              {% else %}
+                <span style="color:var(--text-muted)">Sem expiração</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if servidor.esta_expirado %}
+                <span class="badge badge-danger">Expirado</span>
+              {% elif servidor.data_expiracao %}
+                {% if servidor.dias_restantes is not none and servidor.dias_restantes <= 7 %}
+                  <span class="badge badge-warning">Próximo ao vencimento</span>
+                {% else %}
+                  <span class="badge badge-success">Ativo</span>
+                {% endif %}
+              {% else %}
+                <span class="badge badge-info">Permanente</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if servidor.adm %}
+              <span class="badge badge-warning">Admin</span>
+              {% else %}
+              <span class="badge badge-info">Servidor</span>
+              {% endif %}
+            </td>
+            <td>
+              <div style="display:flex;gap:6px;align-items:center">
+                {% if servidor.adm %}
+                <a href="javascript:void(0);" class="btn btn-outline-rebaixar btn-sm" onclick="confirmarRebaixar('{{ servidor.id }}', '{{ servidor.nome }}')">Rebaixar</a>
+                {% else %}
+                <a href="javascript:void(0);" class="btn btn-outline-promover btn-sm" onclick="confirmarPromover('{{ servidor.id }}', '{{ servidor.nome }}')">Promover</a>
+                {% endif %}
+                <a href="{{ url_for('editar_servidor', id=servidor.id) }}" class="btn btn-outline-editar btn-sm">Editar</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if servidores|length == 0 %}
+    <div style="text-align:center;padding:var(--space-8);color:var(--text-muted)">
+      <p style="font-size:var(--text-lg)">Nenhum servidor cadastrado</p>
+      <a href="{{ url_for('cadastro_servidor') }}" class="btn btn-primary" style="margin-top:var(--space-4)">Cadastrar Primeiro Servidor</a>
+    </div>
+    {% endif %}
+
+<script>
+  function filtrarServidores() {
+    const busca = document.getElementById("busca-servidor").value.toLowerCase().trim();
+    const cargo = document.getElementById("filtro-cargo").value;
+    const status = document.getElementById("filtro-status").value;
+    const linhas = document.querySelectorAll("#tabela-servidores tbody tr");
+    let visiveis = 0;
+    linhas.forEach(linha => {
+      const texto = linha.dataset.busca?.toLowerCase() || "";
+      const cargoOk = !cargo || linha.dataset.cargo === cargo;
+      const statusOk = !status || linha.dataset.status === status;
+      const buscaOk = !busca || texto.includes(busca);
+      if (buscaOk && cargoOk && statusOk) {
+        linha.style.display = "";
+        visiveis++;
+      } else {
+        linha.style.display = "none";
+      }
+    });
+    const vazio = document.getElementById("nenhum-resultado");
+    if (visiveis === 0) {
+      if (!vazio) {
+        const tr = document.createElement("tr");
+        tr.id = "nenhum-resultado";
+        tr.innerHTML = '<td colspan="7" class="table-empty">Nenhum servidor encontrado</td>';
+        document.querySelector("#tabela-servidores tbody").appendChild(tr);
+      }
+    } else if (vazio) {
+      vazio.remove();
+    }
+  }
+
+  function confirmarPromover(id, nome) {
+    document.getElementById("form-promover").action = "{{ url_for('editar_servidor', id=0) }}".replace("0", id);
+    document.getElementById("nome-promover").textContent = nome;
+    abrirModal("promover-modal");
+  }
+
+  function fecharPromover() {
+    fecharModal("promover-modal");
+  }
+
+  function confirmarRebaixar(id, nome) {
+    document.getElementById("form-rebaixar").action = "{{ url_for('editar_servidor', id=0) }}".replace("0", id);
+    document.getElementById("nome-rebaixar").textContent = nome;
+    abrirModal("rebaixar-modal");
+  }
+
+  function fecharRebaixar() {
+    fecharModal("rebaixar-modal");
+  }
+</script>
+{% endblock %}
+
+{% block extra_modals %}
+<div class="modal-overlay" id="promover-modal" style="display:none" role="dialog" aria-modal="true" aria-label="Confirmar promoção">
+  <div class="modal-box modal-box-sm">
+    <button class="modal-close" onclick="fecharPromover()" aria-label="Fechar">✕</button>
+    <h3 class="modal-title">Promover a Administrador</h3>
+    <p style="color:var(--text-secondary);margin:var(--space-2) 0 var(--space-4)">
+      Tem certeza que deseja promover <strong id="nome-promover"></strong> a administrador?
+    </p>
+    <form id="form-promover" method="POST" action="{{ url_for('editar_servidor', id=0) }}">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+      <input type="hidden" name="acao" value="promover" />
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="fecharPromover()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Confirmar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="rebaixar-modal" style="display:none" role="dialog" aria-modal="true" aria-label="Confirmar rebaixamento">
+  <div class="modal-box modal-box-sm">
+    <button class="modal-close" onclick="fecharRebaixar()" aria-label="Fechar">✕</button>
+    <h3 class="modal-title">Rebaixar para Servidor</h3>
+    <p style="color:var(--text-secondary);margin:var(--space-2) 0 var(--space-4)">
+      Tem certeza que deseja rebaixar <strong id="nome-rebaixar"></strong> de administrador?
+    </p>
+    <form id="form-rebaixar" method="POST" action="{{ url_for('editar_servidor', id=0) }}">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+      <input type="hidden" name="acao" value="rebaixar" />
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="fecharRebaixar()">Cancelar</button>
+        <button type="submit" class="btn btn-danger">Confirmar</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

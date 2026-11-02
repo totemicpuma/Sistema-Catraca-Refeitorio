@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block app_wrapper %}
+<div class="main-content-wrapper" style="min-height: 100vh; display: flex; flex-direction: column;">
+  <header class="header" role="banner" style="justify-content: center;">
+    <div class="header-left">
+      <img src="{{ url_for('static', filename='logo-sistema.svg') }}" alt="Smart Access — Catraca & Refeitório" height="46" onerror="this.style.display='none'" />
+      <h2>Sistema do Refeitório</h2>
+    </div>
+  </header>
+  <main class="container-center" style="flex: 1; display: flex; align-items: center; justify-content: center;">
+    <section class="card-form">
+      <h2>Acesso ao Sistema</h2>
+      <form action="#" method="post">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+        <input type="text" name="matricula" placeholder="Matrícula" class="input" />
+        <input type="password" name="senha" placeholder="Senha" class="input" style="margin-top:8px" />
+        <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:16px">Entrar</button>
+      </form>
+    </section>
+  </main>
+</div>
+{% endblock %}

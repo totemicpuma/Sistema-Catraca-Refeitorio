@@ -1,0 +1,274 @@
+/* ================================================
+   DESIGN SYSTEM PREMIUM — Inter, Glassmorphism & High Contrast
+   ================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* === RESET === */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* === VARIÁVEIS — TEMA CLARO === */
+:root {
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+
+  /* Cores vibrantes e limpas */
+  --bg-body: #f3f4f6;
+  --bg-surface: #ffffff;
+  --bg-surface-solid: #ffffff;
+  --bg-subtle: #f9fafb;
+  --bg-elevated: #ffffff;
+
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #6b7280;
+
+  --border-default: #d1d5db;
+  --border-soft: #e5e7eb;
+
+  /* Paleta Verde Esmeralda (Tema Principal) */
+  --green: #10b981;
+  --green-hover: #059669;
+  --green-light: #d1fae5;
+  --green-dark: #047857;
+
+  /* Paleta Secundária Azul */
+  --blue: #3b82f6;
+  --blue-hover: #2563eb;
+  --blue-light: #dbeafe;
+
+  --red: #ef4444;
+  --red-light: #fee2e2;
+  --red-hover: #dc2626;
+
+  --yellow: #f59e0b;
+  --yellow-light: #fef3c7;
+  --yellow-dark: #d97706;
+
+  --orange: #f97316;
+  --orange-light: #ffedd5;
+
+  --purple: #8b5cf6;
+  --purple-light: #ede9fe;
+
+  --success-bg: #d1fae5;
+  --success-text: #065f46;
+  --success-border: #34d399;
+
+  --error-bg: #fee2e2;
+  --error-text: #991b1b;
+  --error-border: #f87171;
+
+  --info-bg: #dbeafe;
+  --info-text: #1e40af;
+  --info-border: #60a5fa;
+
+  --warning-bg: #fef3c7;
+  --warning-text: #92400e;
+  --warning-border: #fbbf24;
+
+  --table-header: rgba(243, 244, 246, 0.8);
+  --table-hover: rgba(249, 250, 251, 0.9);
+  --table-border: #e5e7eb;
+
+  /* Sombras Clássicas (Ajustadas para mais contraste no modo claro) */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+  
+  --shadow-glass: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  --header-h: 70px;
+
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  --focus-ring: 0 0 0 4px rgba(16, 185, 129, 0.3);
+  --focus-ring-red: 0 0 0 4px rgba(239, 68, 68, 0.3);
+
+  --btn-text: #ffffff;
+  
+  /* Gradiente de fundo removido (uso corporativo) */
+  --bg-gradient: var(--bg-body);
+}
+
+/* === TEMA ESCURO === */
+.dark-mode {
+  --bg-body: #121212;
+  --bg-surface: #1e1e1e;
+  --bg-surface-solid: #1e1e1e;
+  --bg-subtle: #121212;
+  --bg-elevated: #2a2a2a;
+
+  --text-primary: #f5f5f5;
+  --text-secondary: #a3a3a3;
+  --text-muted: #737373;
+
+  --border-default: #333333;
+  --border-soft: #262626;
+
+  --green: #10b981;
+  --green-hover: #34d399;
+  --green-light: #064e3b;
+  --green-dark: #6ee7b7;
+
+  --blue: #3b82f6;
+  --blue-hover: #60a5fa;
+  --blue-light: #1e3a8a;
+
+  --red: #ef4444;
+  --red-light: #7f1d1d;
+  --red-hover: #f87171;
+
+  --yellow: #f59e0b;
+  --yellow-light: #78350f;
+
+  --orange: #f97316;
+  --orange-light: #7c2d12;
+
+  --purple: #8b5cf6;
+  --purple-light: #4c1d95;
+
+  --table-header: #1a1a1a;
+  --table-hover: #262626;
+  --table-border: #333333;
+
+  --success-bg: #064e3b;
+  --success-text: #6ee7b7;
+  --success-border: #047857;
+
+  --error-bg: #7f1d1d;
+  --error-text: #fca5a5;
+  --error-border: #b91c1c;
+
+  --info-bg: #1e3a8a;
+  --info-text: #93c5fd;
+  --info-border: #1d4ed8;
+
+  --warning-bg: #78350f;
+  --warning-text: #fcd34d;
+  --warning-border: #b45309;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+  
+  --shadow-glass: 0 4px 6px rgba(0, 0, 0, 0.3);
+
+  --focus-ring: 0 0 0 4px rgba(16, 185, 129, 0.4);
+  --focus-ring-red: 0 0 0 4px rgba(239, 68, 68, 0.4);
+
+  --btn-text: #ffffff;
+  
+  --bg-gradient: var(--bg-body);
+}
+
+/* === BODY === */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* === ANIMAÇÕES GLOBAIS === */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes skeleton {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(100%) scale(0.9); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0) scale(1); }
+  to { opacity: 0; transform: translateX(100%) scale(0.9); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
+}

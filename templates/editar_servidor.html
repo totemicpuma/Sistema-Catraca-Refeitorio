@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}Editar Servidor{% endblock %}
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Navegação estrutural">
+  {% if session.tipo_usuario == 'master' %}
+  <a href="{{ url_for('painel_master') }}">Master</a>
+  {% else %}
+  <a href="{{ url_for('painel') }}">Admin</a>
+  {% endif %}
+  <span class="breadcrumb-sep">›</span>
+  <span>Editar {{ servidor.nome }}</span>
+</nav>
+{% endblock %}
+{% block header_title %}Editar Servidor{% endblock %}
+{% block extra_css %}
+<style>
+  .editar-form .info-box {
+    background: var(--bg-subtle);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--blue);
+    margin-bottom: var(--space-5);
+  }
+  .editar-form .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-2) 0;
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .editar-form .info-row:last-child {
+    border-bottom: none;
+  }
+  .editar-form .info-row strong {
+    color: var(--text-primary);
+  }
+  .editar-form .action-btns {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .editar-form .action-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-4);
+    border: 2px solid;
+    border-radius: var(--radius-md);
+    background: transparent;
+    cursor: pointer;
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    font-family: inherit;
+    transition: all var(--transition-base);
+  }
+  .editar-form .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+  .editar-form .action-btn.promover {
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .editar-form .action-btn.promover:hover {
+    background: var(--green);
+    color: white;
+  }
+  .editar-form .action-btn.rebaixar {
+    border-color: var(--yellow);
+    color: var(--yellow);
+  }
+  .editar-form .action-btn.rebaixar:hover {
+    background: var(--yellow);
+    color: black;
+  }
+  .editar-form .action-btn.excluir {
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .editar-form .action-btn.excluir:hover {
+    background: var(--red);
+    color: white;
+  }
+</style>
+{% endblock %}
+{% block back_button %}{% endblock %}
+{% block layout %}
+<main class="container-center">
+  <section class="card-form editar-form">
+    <h2>{{ servidor.nome }}</h2>
+
+    <div class="info-box">
+      <div class="info-row"><strong>Matrícula</strong><span>{{ servidor.matricula }}</span></div>
+      <div class="info-row">
+        <strong>Cargo</strong>
+        <span>{% if servidor.adm %}<span class="badge badge-warning">Administrador</span>{% else %}<span class="badge badge-info">Servidor</span>{% endif %}</span>
+      </div>
+      <div class="info-row">
+        <strong>Expiração</strong>
+        <span>{% if servidor.data_expiracao %}{{ servidor.data_expiracao }}{% else %}Sem expiração{% endif %}</span>
+      </div>
+    </div>
+
+    <div class="action-btns">
+      {% if session.tipo_usuario == 'master' %}
+        {% if not servidor.adm %}
+        <button class="action-btn promover" onclick="abrirModalEditar('promover')"><span>Promover a administrador</span><span>→</span></button>
+        {% else %}
+        <button class="action-btn rebaixar" onclick="abrirModalEditar('rebaixar')"><span>Rebaixar para servidor</span><span>→</span></button>
+        {% endif %}
+      {% endif %}
+      <button class="action-btn excluir" onclick="abrirModalEditar('excluir')"><span>Excluir servidor</span><span>→</span></button>
+    </div>
+  </section>
+</main>
+
+<script>
+  function abrirModalEditar(tipo) {
+    fecharModalEditar();
+    const modal = document.getElementById(`modal-${tipo}`);
+    if (modal) { modal.style.display = "flex"; modal.classList.add("active"); document.body.style.overflow = "hidden"; }
+  }
+  function fecharModalEditar() {
+    document.querySelectorAll(".modal-overlay").forEach(m => { m.style.display = "none"; m.classList.remove("active"); });
+    document.body.style.overflow = "";
+  }
+  document.querySelectorAll(".modal-overlay").forEach(modal => {
+    modal.addEventListener("click", function (e) { if (e.target === this) { this.style.display = "none"; this.classList.remove("active"); document.body.style.overflow = ""; } });
+  });
+</script>
+{% endblock %}
+{% block extra_modals %}
+<div class="modal-overlay" id="modal-promover" style="display:none" role="dialog" aria-modal="true">
+  <div class="modal-box modal-box-sm">
+    <button class="modal-close" onclick="fecharModalEditar()" aria-label="Fechar">✕</button>
+    <h3 class="modal-title">Promover a Administrador</h3>
+    <p style="color:var(--text-secondary);margin:var(--space-2) 0 var(--space-4)">Tem certeza que deseja promover <strong>{{ servidor.nome }}</strong> a administrador? Digite sua senha para confirmar.</p>
+    <form method="POST" style="margin:0">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+      <input type="hidden" name="acao" value="promover" />
+      <input type="password" name="senha" placeholder="Sua senha" class="input" required autocomplete="off" />
+      <div class="modal-actions" style="margin-top:var(--space-3)">
+        <button type="button" class="btn btn-outline" onclick="fecharModalEditar()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Confirmar</button>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-rebaixar" style="display:none" role="dialog" aria-modal="true">
+  <div class="modal-box modal-box-sm">
+    <button class="modal-close" onclick="fecharModalEditar()" aria-label="Fechar">✕</button>
+    <h3 class="modal-title">Rebaixar para Servidor</h3>
+    <p style="color:var(--text-secondary);margin:var(--space-2) 0 var(--space-4)">Tem certeza que deseja rebaixar <strong>{{ servidor.nome }}</strong> de administrador? Digite sua senha para confirmar.</p>
+    <form method="POST" style="margin:0">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+      <input type="hidden" name="acao" value="rebaixar" />
+      <input type="password" name="senha" placeholder="Sua senha" class="input" required autocomplete="off" />
+      <div class="modal-actions" style="margin-top:var(--space-3)">
+        <button type="button" class="btn btn-outline" onclick="fecharModalEditar()">Cancelar</button>
+        <button type="submit" class="btn btn-danger">Confirmar</button>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-excluir" style="display:none" role="dialog" aria-modal="true">
+  <div class="modal-box modal-box-sm">
+    <button class="modal-close" onclick="fecharModalEditar()" aria-label="Fechar">✕</button>
+    <h3 class="modal-title">Excluir Servidor</h3>
+    <p style="color:var(--text-secondary);margin:var(--space-2) 0 var(--space-4)">Tem certeza que deseja excluir <strong>{{ servidor.nome }}</strong>? Digite sua senha para confirmar.</p>
+    <form method="POST" style="margin:0">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+      <input type="hidden" name="acao" value="excluir" />
+      <input type="password" name="senha" placeholder="Sua senha" class="input" required autocomplete="off" />
+      <div class="modal-actions" style="margin-top:var(--space-3)">
+        <button type="button" class="btn btn-outline" onclick="fecharModalEditar()">Cancelar</button>
+        <button type="submit" class="btn btn-danger">Excluir</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

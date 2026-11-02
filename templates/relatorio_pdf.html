@@ -1,0 +1,250 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page {
+    size: A4;
+    margin: 2cm 1.5cm;
+    @top-center {
+      content: "Relatório de Frequência — Refeitório";
+      font-size: 9pt;
+      color: #888;
+    }
+    @bottom-center {
+      content: "Página " counter(page) " de " counter(pages);
+      font-size: 8pt;
+      color: #888;
+    }
+  }
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 10pt;
+    line-height: 1.5;
+    color: #222;
+  }
+  h1 {
+    font-size: 18pt;
+    color: #0D9668;
+    margin: 0 0 4px;
+  }
+  .subtitle {
+    color: #666;
+    font-size: 10pt;
+    margin-bottom: 20px;
+  }
+  h2 {
+    font-size: 13pt;
+    color: #0D9668;
+    border-bottom: 2px solid #0D9668;
+    padding-bottom: 4px;
+    margin-top: 28px;
+    margin-bottom: 12px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    font-size: 9pt;
+  }
+  th {
+    background: #0D9668;
+    color: white;
+    padding: 6px 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  td {
+    padding: 5px 8px;
+    border: 1px solid #d0d5dd;
+    text-align: center;
+  }
+  tr:nth-child(even) td {
+    background: #f4f5f7;
+  }
+  .resumo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .resumo-item {
+    border: 1px solid #d0d5dd;
+    border-radius: 6px;
+    padding: 10px 14px;
+  }
+  .resumo-item .label {
+    font-size: 8pt;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+  .resumo-item .value {
+    font-size: 14pt;
+    font-weight: 700;
+    color: #0D9668;
+    margin-top: 2px;
+  }
+  .footer {
+    margin-top: 30px;
+    padding-top: 10px;
+    border-top: 1px solid #d0d5dd;
+    font-size: 8pt;
+    color: #888;
+    text-align: center;
+  }
+  .page-break {
+    page-break-before: always;
+  }
+  .left { text-align: left; }
+</style>
+</head>
+<body>
+
+<h1>Relatório de Frequência</h1>
+<div class="subtitle">Período: {{ periodo_label }}</div>
+
+<h2>Resumo do Período</h2>
+<div class="resumo-grid">
+  <div class="resumo-item">
+    <div class="label">Total de Entradas</div>
+    <div class="value">{{ total_entradas }}</div>
+  </div>
+  <div class="resumo-item">
+    <div class="label">Alunos Únicos</div>
+    <div class="value">{{ qtd_unicos }}</div>
+  </div>
+  <div class="resumo-item">
+    <div class="label">Média de Entradas por Dia</div>
+    <div class="value">{{ media_diaria }}</div>
+  </div>
+  <div class="resumo-item">
+    <div class="label">Dia com Mais Acessos</div>
+    <div class="value">{{ dia_mais_label }}</div>
+  </div>
+  <div class="resumo-item">
+    <div class="label">Dia com Menos Acessos</div>
+    <div class="value">{{ dia_menos_label }}</div>
+  </div>
+</div>
+
+<h2>Frequência Diária</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Dia</th>
+      <th>Data</th>
+      <th>Entradas</th>
+      <th>Alunos Únicos</th>
+      <th>Dia da Semana</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for d in dados_diarios %}
+    <tr>
+      <td>{{ d.dia_semana }}</td>
+      <td>{{ d.data }}</td>
+      <td>{{ d.entradas }}</td>
+      <td>{{ d.alunos_unicos }}</td>
+      <td>{{ d.dia_semana }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Média por Dia da Semana</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Dia</th>
+      <th>Média de Alunos</th>
+      <th>% do Total Semanal</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for d in dados_dia_semana %}
+    <tr>
+      <td><strong>{{ d.dia }}</strong></td>
+      <td>{{ d.media }}</td>
+      <td>{{ d.pct }}%</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Acessos por Hora</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Hora</th>
+      <th>Total de Entradas</th>
+      <th>% do Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for h in dados_horas %}
+    <tr>
+      <td>{{ h.hora }}</td>
+      <td>{{ h.total }}</td>
+      <td>{{ h.pct }}%</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Acessos por Refeição</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Refeição</th>
+      <th>Total de Passagens</th>
+      <th>% do Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in dados_refeicoes %}
+    <tr>
+      <td class="left">{{ r.refeicao }}</td>
+      <td>{{ r.total }}</td>
+      <td>{{ r.pct }}%</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2>Alunos que Acessaram</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Aluno</th>
+      <th>Matrícula</th>
+      <th>Curso</th>
+      <th>Turma</th>
+      <th>Acessos</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for a in dados_alunos %}
+    <tr>
+      <td class="left">{{ a.nome }}</td>
+      <td>{{ a.matricula }}</td>
+      <td>{{ a.curso }}</td>
+      <td>{{ a.turma }}</td>
+      <td>{{ a.acessos }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="footer">
+  Relatório gerado em {{ gerado_em }} — Sistema de Fluxo do Refeitório
+</div>
+
+</body>
+</html>

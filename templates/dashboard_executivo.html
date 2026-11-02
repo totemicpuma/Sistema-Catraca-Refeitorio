@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Executivo — Refeitório{% endblock %}
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Navegação estrutural">
+  <span>Dashboard</span>
+</nav>
+{% endblock %}
+{% block header_title %}Dashboard Executivo{% endblock %}
+{% block extra_css %}{% endblock %}
+{% block skip_link %}<a href="#main-content" class="skip-link">Pular para o conteúdo principal</a>{% endblock %}
+{% block body_class %}pagina-dashboard{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
+{% block sidebar %}{{ super() }}{% endblock %}
+{% block content %}
+<div class="content-header" id="main-content">
+      <h3>Visão Geral do Refeitório</h3>
+      <span style="font-size:var(--text-sm);color:var(--text-muted);display:flex;align-items:center;gap:6px" aria-live="polite">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>Atualizado em tempo real</span>
+      </span>
+    </div>
+
+    <div class="kpi-grid" id="kpi-grid" role="region" aria-label="Indicadores principais">
+      <div class="skeleton skeleton-kpi" aria-hidden="true"></div>
+      <div class="skeleton skeleton-kpi" aria-hidden="true"></div>
+      <div class="skeleton skeleton-kpi" aria-hidden="true"></div>
+      <div class="skeleton skeleton-kpi" aria-hidden="true"></div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card chart-card-full">
+        <h3>Fluxo no Refeitório — Hoje (passagens por horário)</h3>
+        <div class="chart-container" id="chart-fluxo-container">
+          <div class="skeleton skeleton-chart" aria-hidden="true"></div>
+          <canvas id="chart-fluxo-hora" style="display:none" aria-label="Gráfico de fluxo por hora"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>Comparativo: esta semana vs. semana anterior</h3>
+        <div class="chart-container" style="min-height:200px">
+          <div class="skeleton skeleton-chart" style="height:200px" aria-hidden="true"></div>
+          <canvas id="chart-comparativo" style="display:none;max-height:220px" aria-label="Gráfico comparativo semanal"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Acessos por dia da semana (últimos 30 dias)</h3>
+        <div class="chart-container" style="min-height:200px">
+          <div class="skeleton skeleton-chart" style="height:200px" aria-hidden="true"></div>
+          <canvas id="chart-dia-semana" style="display:none;max-height:220px" aria-label="Gráfico de acessos por dia da semana"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>Pico de Utilização Hoje</h3>
+        <div id="pico-info" aria-live="polite"></div>
+      </div>
+      <div class="chart-card">
+        <h3>Insights do Sistema</h3>
+        <div id="insights-container" style="display:flex;flex-direction:column;gap:8px" role="list" aria-label="Insights automáticos"></div>
+      </div>
+    </div>
+{% endblock %}

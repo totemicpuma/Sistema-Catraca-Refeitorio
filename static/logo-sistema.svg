@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 56" fill="none">
+  <defs>
+    <linearGradient id="catracaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="6" width="44" height="44" rx="12" fill="url(#catracaGrad)"/>
+  <!-- Icone de Catraca / Scanner QR & OCR -->
+  <path d="M15 19V16C15 14.8954 15.8954 14 17 14H20" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M32 14H35C36.1046 14 37 14.8954 37 16V19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M37 37V40C37 41.1046 36.1046 42 35 42H32" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M20 42H17C15.8954 42 15 41.1046 15 40V37" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="15" y1="28" x2="37" y2="28" stroke="#bbf7d0" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="26" cy="22" r="3" fill="white"/>
+  <path d="M20 35C20 32.2386 22.6863 30 26 30C29.3137 30 32 32.2386 32 35" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- Tipografia -->
+  <text x="58" y="27" font-family="Inter, system-ui, sans-serif" font-weight="800" font-size="17" fill="#10b981" letter-spacing="0.03em">SMART ACCESS</text>
+  <text x="58" y="44" font-family="Inter, system-ui, sans-serif" font-weight="600" font-size="12" fill="#64748b" letter-spacing="0.05em">CATRACA &amp; REFEITÓRIO</text>
+</svg>

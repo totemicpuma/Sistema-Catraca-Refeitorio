@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Refeitório — Acesso Rápido</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: 'Inter', sans-serif;
+        background: radial-gradient(circle at top left, #0f766e 0%, #052e2b 45%, #020617 100%);
+        color: #f8fafc;
+      }
+      .publico-shell {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+      .publico-card {
+        width: min(1080px, 100%);
+        background: rgba(2, 6, 23, 0.88);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 28px;
+        box-shadow: 0 24px 80px rgba(0,0,0,.35);
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+      }
+      .publico-header {
+        padding: 24px 28px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        background: linear-gradient(90deg, rgba(16,185,129,.25), rgba(59,130,246,.16));
+        border-bottom: 1px solid rgba(255,255,255,.1);
+      }
+      .publico-body {
+        padding: 24px 28px 28px;
+        display: grid;
+        gap: 20px;
+      }
+      .publico-grid {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 20px;
+      }
+      .panel {
+        background: rgba(15, 23, 42, 0.75);
+        border-radius: 20px;
+        padding: 20px;
+        border: 1px solid rgba(255,255,255,.08);
+      }
+      .panel-title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0 0 10px;
+        color: #cbd5e1;
+      }
+      .kpi-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(16,185,129,.18);
+        color: #bbf7d0;
+        font-weight: 700;
+      }
+      .kpi-value {
+        font-size: 3rem;
+        font-weight: 800;
+        color: #34d399;
+        line-height: 1;
+      }
+      .entrada-box {
+        padding: 18px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(16,185,129,.16), rgba(2,132,199,.12));
+        border: 1px solid rgba(255,255,255,.08);
+      }
+      .form-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      .input {
+        flex: 1;
+        min-width: 240px;
+        font-size: 1rem;
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,.16);
+        background: rgba(255,255,255,.08);
+        color: #f8fafc;
+      }
+      .input::placeholder { color: #cbd5e1; }
+      .input.input-erro {
+        border-color: #f87171;
+        box-shadow: 0 0 0 3px rgba(248,113,113,.25);
+      }
+      .input.shake {
+        animation: shake 0.4s;
+      }
+      @keyframes shake {
+        10%, 90% { transform: translateX(-1px); }
+        20%, 80% { transform: translateX(2px); }
+        30%, 50%, 70% { transform: translateX(-4px); }
+        40%, 60% { transform: translateX(4px); }
+      }
+      .matricula-erro-msg {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        margin: 8px 2px 0;
+        color: #fecaca;
+        font-size: .85rem;
+        font-weight: 700;
+      }
+      .btn {
+        min-height: 48px;
+      }
+      .lista-entradas {
+        display: grid;
+        gap: 10px;
+      }
+      .entrada-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(255,255,255,.05);
+        border: 1px solid rgba(255,255,255,.06);
+      }
+      .entrada-item strong { display: block; }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: .82rem;
+        font-weight: 700;
+      }
+      .chip-presente { background: rgba(16,185,129,.16); color: #bbf7d0; }
+      @media (max-width: 860px) {
+        .publico-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="publico-shell">
+      <div class="publico-card">
+        <div class="publico-header">
+          <div>
+            <h1 style="margin:0;font-size:1.4rem;">Terminal de Catraca &amp; Refeitório</h1>
+            <p style="margin:4px 0 0;color:#e2e8f0;">Registro rápido para alunos · Uma passagem por refeição.</p>
+          </div>
+          <a href="{{ url_for('login') }}" class="btn btn-outline" style="border-color:rgba(255,255,255,.2);color:#fff;">Entrar no painel</a>
+        </div>
+
+        <div class="publico-body">
+          <div id="flash-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="toast toast-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+          </div>
+
+          <div class="publico-grid">
+            <div class="panel">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+                <div>
+                  <div id="total-hoje-count" class="kpi-value">{{ total_hoje }}</div>
+                  <p style="margin:4px 0 0;color:#cbd5e1;">passagens registradas hoje</p>
+                </div>
+                <div class="kpi-pill" id="refeicao-pill">
+                  {% if refeicao_atual %}● {{ refeicao_atual }}{% else %}● Fora de horário{% endif %}
+                </div>
+              </div>
+
+              <div class="entrada-box" style="margin-top:16px">
+                <h3 class="panel-title" style="margin-bottom:6px;">Registrar passagem</h3>
+                <p style="margin:0 0 8px;color:#cbd5e1;">Digite sua matrícula. Cada aluno pode registrar uma única passagem por refeição.</p>
+                <form method="post" id="form-matricula">
+                  <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+                  <div class="form-row">
+                    <input id="matricula" name="matricula" class="input" placeholder="Ex.: 12345" autocomplete="off" required />
+                    <button type="submit" class="btn btn-primary">Registrar</button>
+                  </div>
+                  <p id="matricula-erro" class="matricula-erro-msg">⚠️ Matrícula não encontrada. Confira o número e tente novamente.</p>
+                </form>
+              </div>
+            </div>
+
+            <div class="panel">
+              <h3 class="panel-title">Últimas passagens</h3>
+              <div id="lista-entradas" class="lista-entradas">
+                {% if logs %}
+                  {% for item in logs %}
+                  <div class="entrada-item">
+                    <div>
+                      <strong>{{ item.nome }}</strong>
+                      <span style="color:var(--text-muted);font-size:.9rem">{{ item.curso }} · {{ item.turma }}º</span>
+                    </div>
+                    <div class="chip chip-presente">
+                      {{ item.entrada }}{% if item.refeicao %} · {{ item.refeicao }}{% endif %}
+                    </div>
+                  </div>
+                  {% endfor %}
+                {% else %}
+                  <div class="entrada-item">
+                    <span style="color:var(--text-muted);">Nenhuma passagem registrada hoje ainda.</span>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const statusUrl = {{ url_for('api_publico_status')|tojson }};
+      const submitUrl = {{ url_for('pagina_publica')|tojson }};
+      const totalHojeEl = document.getElementById('total-hoje-count');
+      const listaEl = document.getElementById('lista-entradas');
+      const form = document.getElementById('form-matricula');
+      const inputMatricula = document.getElementById('matricula');
+      const flashContainer = document.getElementById('flash-container');
+      const erroMatriculaEl = document.getElementById('matricula-erro');
+      const refeicaoPill = document.getElementById('refeicao-pill');
+
+      // --- Som de feedback (Web Audio API, sem depender de arquivo externo) ---
+      let audioCtx = null;
+      function getAudioCtx() {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return null;
+        if (!audioCtx) audioCtx = new Ctx();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return audioCtx;
+      }
+
+      function tocarTom(freq, inicio, duracao, tipo, volume) {
+        const ctx = getAudioCtx();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = tipo || 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, ctx.currentTime + inicio);
+        gain.gain.linearRampToValueAtTime(volume || 0.25, ctx.currentTime + inicio + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + inicio + duracao);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + inicio);
+        osc.stop(ctx.currentTime + inicio + duracao + 0.02);
+      }
+
+      function tocarSomSucesso() {
+        tocarTom(587.33, 0, 0.12, 'sine', 0.25);
+        tocarTom(880.00, 0.10, 0.20, 'sine', 0.25);
+      }
+
+      function tocarSomErro() {
+        tocarTom(220.00, 0, 0.16, 'square', 0.15);
+        tocarTom(174.61, 0.16, 0.24, 'square', 0.15);
+      }
+
+      function mostrarToast(mensagem, categoria) {
+        if (!flashContainer || !mensagem) return;
+        flashContainer.innerHTML = '';
+        const div = document.createElement('div');
+        div.className = `toast toast-${categoria}`;
+        div.textContent = mensagem;
+        flashContainer.appendChild(div);
+        setTimeout(() => { div.remove(); }, 5000);
+      }
+
+      function mostrarErroMatricula(mostrar) {
+        if (!inputMatricula || !erroMatriculaEl) return;
+        inputMatricula.classList.toggle('input-erro', mostrar);
+        erroMatriculaEl.style.display = mostrar ? 'flex' : 'none';
+        if (mostrar) {
+          inputMatricula.classList.remove('shake');
+          void inputMatricula.offsetWidth;
+          inputMatricula.classList.add('shake');
+        }
+      }
+
+      if (form) {
+        form.addEventListener('submit', function (evento) {
+          evento.preventDefault();
+          if (!inputMatricula || !inputMatricula.value.trim()) return;
+
+          getAudioCtx();
+
+          fetch(submitUrl, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: new FormData(form),
+          })
+            .then((resposta) => resposta.json())
+            .then((resultado) => {
+              const sucesso = resultado.status === 'entrada';
+              mostrarToast(resultado.mensagem, sucesso ? 'sucesso' : 'erro');
+
+              if (sucesso) {
+                tocarSomSucesso();
+                mostrarErroMatricula(false);
+              } else {
+                tocarSomErro();
+                mostrarErroMatricula(resultado.status === 'nao_cadastrado');
+              }
+
+              inputMatricula.value = '';
+              inputMatricula.focus();
+              atualizarStatus();
+            })
+            .catch(() => {
+              tocarSomErro();
+              mostrarToast('Não foi possível registrar agora. Tente novamente.', 'erro');
+            });
+        });
+      }
+
+      if (inputMatricula) {
+        inputMatricula.addEventListener('input', () => mostrarErroMatricula(false));
+      }
+
+      function renderLogs(items) {
+        if (!listaEl) return;
+        if (!items.length) {
+          listaEl.innerHTML = '<div class="entrada-item"><span style="color:var(--text-muted);">Nenhuma entrada registrada hoje ainda.</span></div>';
+          return;
+        }
+
+        listaEl.innerHTML = items.map((item) => `
+          <div class="entrada-item">
+            <div>
+              <strong>${item.nome}</strong>
+              <span style="color:var(--text-muted);font-size:.9rem">${item.curso || ''} · ${item.turma ? item.turma + 'º' : ''}</span>
+            </div>
+            <div class="chip chip-presente">
+              ${item.entrada}${item.refeicao ? ' · ' + item.refeicao : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function atualizarStatus() {
+        fetch(statusUrl)
+          .then((response) => response.json())
+          .then((dados) => {
+            if (totalHojeEl) {
+              totalHojeEl.textContent = dados.total_hoje;
+            }
+            if (refeicaoPill) {
+              refeicaoPill.textContent = dados.refeicao_atual
+                ? '● ' + dados.refeicao_atual
+                : '● Fora de horário';
+            }
+            renderLogs(dados.logs || []);
+          })
+          .catch(() => {});
+      }
+
+      setInterval(atualizarStatus, 3000);
+      atualizarStatus();
+    </script>
+  </body>
+</html>

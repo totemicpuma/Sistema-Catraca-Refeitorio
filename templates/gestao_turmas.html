@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block title %}Gestão de Turmas{% endblock %}
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Navegação estrutural">
+  <a href="{{ url_for('dashboard') }}">Dashboard</a>
+  <span class="breadcrumb-sep">›</span>
+  <span>Turmas</span>
+</nav>
+{% endblock %}
+{% block header_title %}Gestão de Turmas{% endblock %}
+{% block extra_js %}
+<script>
+  window.ALUNOS_DADOS = {{ alunos_json | tojson | safe }};
+
+  function abrirTurma(tr) {
+    const url = tr.dataset.url;
+    const busca = document.getElementById("busca-alunos-turma")?.value?.trim();
+    window.location = busca ? url + "?destaque=" + encodeURIComponent(busca) : url;
+  }
+</script>
+<script src="{{ url_for('static', filename='js/turmas.js') }}"></script>
+{% endblock %}
+{% block sidebar %}
+<aside class="sidebar" role="navigation" aria-label="Navegação principal">
+  <h3 class="sidebar-title">Navegação</h3>
+  {% block sidebar_links %}
+  {% from "macros.html" import icon_dashboard, icon_turmas, icon_fluxo, icon_relatorio, icon_servidores, icon_refeicoes, nav_btn %}
+  {% set ep = request.endpoint %}
+  {{ nav_btn(url_for('dashboard'), icon_dashboard(), 'Dashboard', 'btn-primary' ~ (' btn-active' if ep == 'dashboard' else '')) }}
+  {{ nav_btn(url_for('gestao_turmas'), icon_turmas(), 'Turmas', 'btn-secondary' ~ (' btn-active' if ep in ('gestao_turmas', 'turma_alunos') else '')) }}
+  {{ nav_btn(url_for('fluxo_refeitorio'), icon_fluxo(), 'Fluxo', 'btn-fluxo' ~ (' btn-active' if ep in ('fluxo_refeitorio', 'redirect_fluxo') else '')) }}
+  {{ nav_btn(url_for('relatorio_refeicoes'), icon_relatorio(), 'Relatório', 'btn-relatorio' ~ (' btn-active' if ep == 'relatorio_refeicoes' else '')) }}
+  {% if session.tipo_usuario in ('admin','master') %}
+  {{ nav_btn(url_for('gestao_refeicoes'), icon_refeicoes(), 'Refeições', 'btn-secondary' ~ (' btn-active' if ep == 'gestao_refeicoes' else '')) }}
+  {{ nav_btn(url_for('painel'), icon_servidores(), 'Servidores', 'btn-servidores' ~ (' btn-active' if ep in ('painel', 'painel_master', 'editar_servidor', 'cadastro_servidor', 'redirect_cadastro', 'redirect_menu') else '')) }}
+  {% endif %}
+  {% endblock %}
+  {% if session.tipo_usuario in ('admin','master') %}
+  <hr style="margin:var(--space-2) 0" />
+  <h3 class="sidebar-title">Ações</h3>
+  <button class="btn btn-secondary" onclick="abrirModal('importar-modal')">Importar Todos</button>
+  <button class="btn btn-danger" onclick="abrirModal('limpar-modal')" style="overflow-wrap:break-word;word-break:break-word;white-space:normal;text-align:center;padding:10px 8px">
+    Limpar Banco de Dados
+  </button>
+  {% endif %}
+</aside>
+{% endblock %}
+{% block content %}
+<div class="content-header">
+      <span id="result-count" style="font-size:var(--text-xs);color:var(--text-muted)">Carregando...</span>
+    </div>
+
+    <div class="kpi-grid" style="margin-bottom:var(--space-4)">
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--blue-light);color:var(--blue);" aria-hidden="true">🏫</div>
+        <span class="kpi-valor" style="color:var(--blue)">{{ total_turmas }}</span>
+        <p>Total de Turmas</p>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--green-light);color:var(--green);" aria-hidden="true">👨‍🎓</div>
+        <span class="kpi-valor" style="color:var(--green)">{{ total_alunos }}</span>
+        <p>Total de Alunos</p>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--green-light);color:var(--green);" aria-hidden="true">🔓</div>
+        <span class="kpi-valor" style="color:var(--green)">{{ turmas_liberadas }}</span>
+        <p>Turmas Liberadas</p>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--red-light);color:var(--red);" aria-hidden="true">🔒</div>
+        <span class="kpi-valor" style="color:var(--red)">{{ turmas_bloqueadas }}</span>
+        <p>Turmas Bloqueadas</p>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="busca-alunos-turma" class="input" placeholder="Filtrar turmas por aluno..." />
+      </div>
+      <div class="filter-wrapper">
+        <button class="filter-btn" onclick="toggleFiltros(this)" aria-label="Filtros" title="Filtros">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        </button>
+        <div class="filter-dropdown">
+          <div class="filter-group">
+            <label class="filter-label">Curso</label>
+            <select id="filtro-curso">
+              <option value="">Todos os Cursos</option>
+              {% set cursos = turmas|map(attribute=0)|unique|list %}
+              {% for curso in cursos %}
+              <option value="{{ curso }}">{{ curso }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Status</label>
+            <select id="filtro-status">
+              <option value="">Todos os Status</option>
+              <option value="liberada">Liberada</option>
+              <option value="bloqueada">Bloqueada</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table id="turmas-table" class="sortable">
+        <thead>
+          <tr>
+            <th>Turma</th>
+            <th>Curso</th>
+            <th>Status Refeitório</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for curso, turma in turmas %}
+          {% set status_obj = status_list | selectattr("curso", "equalto", curso) | selectattr("turma", "equalto", turma) | first %}
+          {% set alunos_turma = alunos_por_turma.get((curso, turma), []) %}
+          {% set total_alunos = alunos_turma | length %}
+
+          <tr onclick="abrirTurma(this)" data-url="{{ url_for('turma_alunos', curso=curso, turma=turma) }}" style="cursor:pointer">
+            <td>
+              <strong style="font-size:var(--text-lg);color:var(--text-primary)">{{ turma }}</strong>
+            </td>
+            <td><span style="font-size:var(--text-sm);color:var(--text-secondary)">{{ curso }}</span></td>
+            <td onclick="event.stopPropagation()">
+              <a href="{{ url_for('alternar_permissao_turma', curso=curso, turma=turma) }}"
+                 class="badge {{ 'badge-success' if (not status_obj or status_obj.permissao_ativa) else 'badge-danger' }}">
+                {{ '🔓 Liberada' if (not status_obj or status_obj.permissao_ativa) else '🔒 Bloqueada' }}
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+{% endblock %}
+{% block extra_modals %}
+<div class="modal-overlay" id="importar-modal" style="display:none" role="dialog" aria-modal="true">
+  <div class="modal-box modal-box-sm">
+    <button class="modal-close" onclick="fecharModal('importar-modal')" aria-label="Fechar">✕</button>
+    <h3 class="modal-title">Confirmar Importação</h3>
+    <p style="color:var(--text-secondary);margin:var(--space-2) 0 var(--space-4)">
+      Digite sua senha de administrador para importar alunos da planilha.
+    </p>
+    <form method="POST" action="{{ url_for('importar_todos_alunos') }}">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+      <input type="password" name="senha" placeholder="Sua senha" class="input" required autocomplete="off" />
+      <div class="modal-actions" style="margin-top:var(--space-3)">
+        <button type="button" class="btn btn-outline" onclick="fecharModal('importar-modal')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Confirmar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="limpar-modal" style="display:none" role="dialog" aria-modal="true">
+  <div class="modal-box modal-box-sm">
+    <button class="modal-close" onclick="fecharModal('limpar-modal')" aria-label="Fechar">✕</button>
+    <h3 class="modal-title">Limpar Banco de Dados</h3>
+    <p style="color:var(--text-secondary);margin:var(--space-2) 0 var(--space-4)">
+      Isso apagará <strong>todos os alunos e histórico de acesso</strong> permanentemente! Digite sua senha de administrador para confirmar.
+    </p>
+    <form method="POST" action="{{ url_for('limpar_tabela') }}">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+      <input type="password" name="senha" placeholder="Sua senha" class="input" required autocomplete="off" />
+      <div class="modal-actions" style="margin-top:var(--space-3)">
+        <button type="button" class="btn btn-outline" onclick="fecharModal('limpar-modal')">Cancelar</button>
+        <button type="submit" class="btn btn-danger">Confirmar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function abrirModal(id) {
+  const el = document.getElementById(id);
+  if (el) { el.style.display = "flex"; el.classList.add("active"); document.body.style.overflow = "hidden"; }
+}
+function fecharModal(id) {
+  const el = document.getElementById(id);
+  if (el) { el.style.display = "none"; el.classList.remove("active"); document.body.style.overflow = ""; }
+}
+document.querySelectorAll(".modal-overlay").forEach(m => {
+  m.addEventListener("click", function(e) { if (e.target === this) { this.style.display = "none"; this.classList.remove("active"); document.body.style.overflow = ""; } });
+});
+</script>
+{% endblock %}

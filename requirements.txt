@@ -1,0 +1,21 @@
+# Dependências do Sistema Unificado do Refeitório
+# (dashboard web + câmera/catraca com reconhecimento da carteirinha)
+
+# --- Web / Dashboard ---
+Flask>=3.0.0,<4
+Flask-SQLAlchemy>=3.1.0,<4
+pandas>=2.0.0,<3
+odfpy>=1.4.0
+reportlab>=4.0,<5
+weasyprint>=69.0,<70
+
+# --- Câmera / Visão computacional / OCR ---
+opencv-python>=4.8.0
+ultralytics>=8.0.0
+pytesseract>=0.3.10
+Pillow>=10.0.0
+numpy>=1.26.0
+openpyxl>=3.1.0
+
+# --- Comunicação (opcional: catracas remotas via MQTT) ---
+paho-mqtt>=1.6.1,<2

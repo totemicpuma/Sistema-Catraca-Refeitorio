@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Turma {{ curso }}{% endblock %}
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Navegação estrutural">
+  <a href="{{ url_for('dashboard') }}">Dashboard</a>
+  <span class="breadcrumb-sep">›</span>
+  <a href="{{ url_for('gestao_turmas') }}">Turmas</a>
+  <span class="breadcrumb-sep">›</span>
+  <span>{{ curso }}</span>
+</nav>
+{% endblock %}
+{% block sidebar %}{{ super() }}{% endblock %}
+{% block content %}
+<div class="content-header">
+  <div>
+    <h3>{{ curso }} — Lista de Alunos</h3>
+    <span style="font-size:var(--text-sm);color:var(--text-muted)">{{ alunos|length }} alunos cadastrados</span>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:var(--blue-light);color:var(--blue);" aria-hidden="true">👨‍🎓</div>
+    <span class="kpi-valor" id="kpi-total" style="color:var(--blue)">{{ alunos|length }}</span>
+    <p>Total</p>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:var(--green-light);color:var(--green);" aria-hidden="true">🔓</div>
+    <span class="kpi-valor" id="kpi-liberados" style="color:var(--green)">{{ alunos|selectattr('permissao')|list|length }}</span>
+    <p>Liberados</p>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:var(--red-light);color:var(--red);" aria-hidden="true">🔒</div>
+    <span class="kpi-valor" id="kpi-bloqueados" style="color:var(--red)">{{ alunos|rejectattr('permissao')|list|length }}</span>
+    <p>Bloqueados</p>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:var(--green-light);color:var(--green);" aria-hidden="true">🟢</div>
+    <span class="kpi-valor" id="kpi-registrados" style="color:var(--green)">{{ alunos|selectattr('id', 'in', registrados_ids)|list|length }}</span>
+    <p>{{ 'Já passaram — ' ~ refeicao_atual if refeicao_atual else 'Fora de horário' }}</p>
+  </div>
+</div>
+
+<div class="search-bar">
+  <div class="search-input-wrapper">
+    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="busca-aluno" class="input" placeholder="Filtrar por nome ou matrícula..." oninput="filtrarAlunos()" />
+  </div>
+</div>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Matrícula</th>
+        <th>Status</th>
+        <th>Permissão</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for aluno in alunos %}
+      <tr id="linha-aluno-{{ aluno.id }}" class="aluno-row" data-nome="{{ aluno.nome|lower }}" data-matricula="{{ aluno.matricula }}">
+        <td><strong>{{ aluno.nome }}</strong></td>
+        <td>{{ aluno.matricula }}</td>
+        <td>
+          {% if aluno.id in registrados_ids %}
+          <span class="status-dot" style="background:var(--green);display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;box-shadow:0 0 6px rgba(16,185,129,0.5)"></span>
+          <span style="color:var(--green);font-weight:var(--weight-semibold)">Já passou</span>
+          {% else %}
+          <span class="status-dot" style="background:var(--text-muted);display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle"></span>
+          <span style="color:var(--text-muted)">Não passou</span>
+          {% endif %}
+        </td>
+        <td>
+          <a href="{{ url_for('alternar_permissao_aluno', aluno_id=aluno.id) }}"
+             class="badge {{ 'badge-success' if aluno.permissao else 'badge-danger' }}">
+            {{ '✔ Liberado' if aluno.permissao else '✘ Bloqueado' }}
+          </a>
+        </td>
+        <td>
+          {% if not aluno.permissao %}
+          <span style="color:var(--text-muted);font-size:var(--text-sm);font-style:italic">Acesso Suspenso</span>
+          {% elif not refeicao_atual %}
+          <span style="color:var(--text-muted);font-size:var(--text-sm);font-style:italic">Fora de horário</span>
+          {% elif aluno.id in registrados_ids %}
+          <span style="color:var(--text-muted);font-size:var(--text-sm);font-style:italic">Já registrado</span>
+          {% else %}
+          <a href="{{ url_for('registrar_entrada', aluno_id=aluno.id) }}" class="btn btn-primary btn-sm">✔ Registrar Passagem</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  function atualizarStatusAlunos() {
+    fetch("/api/registrados_ids")
+      .then((r) => r.json())
+      .then((data) => {
+        const registrados = data.registrados_ids;
+        document.querySelectorAll('[id^="linha-aluno-"]').forEach((linha) => {
+          const id = parseInt(linha.id.replace("linha-aluno-", ""));
+          const coluna = linha.cells[2];
+          coluna.innerHTML = registrados.includes(id)
+            ? '<span class="status-dot" style="background:var(--green);display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;box-shadow:0 0 6px rgba(16,185,129,0.5)"></span><span style="color:var(--green);font-weight:var(--weight-semibold)">Já passou</span>'
+            : '<span class="status-dot" style="background:var(--text-muted);display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle"></span><span style="color:var(--text-muted)">Não passou</span>';
+        });
+        document.getElementById("kpi-registrados").textContent = registrados.length;
+      });
+  }
+  setInterval(atualizarStatusAlunos, 3000);
+
+  function filtrarAlunos() {
+    const termo = document.getElementById("busca-aluno").value.toLowerCase().trim();
+    const linhas = document.querySelectorAll(".aluno-row");
+    let visiveis = 0;
+    linhas.forEach(function(linha) {
+      const nome = linha.getAttribute("data-nome");
+      const matricula = linha.getAttribute("data-matricula");
+      const match = !termo || nome.includes(termo) || matricula.includes(termo);
+      linha.style.display = match ? "" : "none";
+      if (match) visiveis++;
+    });
+    const total = document.getElementById("kpi-total");
+    total.textContent = visiveis;
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    const params = new URLSearchParams(window.location.search);
+    const destaque = params.get("destaque");
+    if (destaque) {
+      const termo = destaque.toLowerCase();
+      const linhas = document.querySelectorAll('[id^="linha-aluno-"]');
+      let alvo = null;
+      for (const linha of linhas) {
+        const mat = linha.cells[1]?.textContent?.trim() || "";
+        const nome = linha.cells[0]?.textContent?.trim() || "";
+        if (mat === destaque || nome.toLowerCase() === termo) { alvo = linha; break; }
+      }
+      if (!alvo) {
+        for (const linha of linhas) {
+          if (linha.textContent.toLowerCase().includes(termo)) { alvo = linha; break; }
+        }
+      }
+      if (alvo) {
+        alvo.classList.add("linha-destaque");
+        alvo.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  });
+</script>
+{% endblock %}
+{% block modals %}{{ super() }}{% endblock %}

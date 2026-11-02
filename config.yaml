@@ -1,0 +1,14 @@
+# Caminho absoluto ou relativo para a pasta principal do dataset
+path: ./dataset
+
+# Pasta onde estão as imagens de treino (ajuste se o CVAT salvou com outro nome, como 'images/train')
+train: obj_train_data 
+val: obj_train_data # Como temos poucas fotos, vamos usar a mesma pasta para validar
+
+# Número de classes
+nc: 2
+
+# Nomes das classes (tem que ser exatamente na ordem que você criou no CVAT)
+names:
+  0: carteirinha_celular
+  1: matricula

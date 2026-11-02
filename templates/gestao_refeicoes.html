@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Refeições{% endblock %}
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Navegação estrutural">
+  <a href="{{ url_for('dashboard') }}">Dashboard</a>
+  <span class="breadcrumb-sep">›</span>
+  <span>Refeições</span>
+</nav>
+{% endblock %}
+{% block header_title %}Refeições{% endblock %}
+{% block content %}
+<div class="content-header">
+  <div>
+    <h3>Horários das Refeições</h3>
+    <span style="font-size:var(--text-sm);color:var(--text-muted)">
+      O aluno pode registrar uma única passagem por refeição, por dia. Fora destas janelas, a catraca recusa a leitura.
+    </span>
+  </div>
+</div>
+
+<div class="kpi-grid" style="margin-bottom:var(--space-3)">
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:var(--blue-light);color:var(--blue);" aria-hidden="true">🍽️</div>
+    <span class="kpi-valor" style="color:var(--blue)">{{ refeicoes|length }}</span>
+    <p>Cadastradas</p>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:var(--green-light);color:var(--green);" aria-hidden="true">🔓</div>
+    <span class="kpi-valor" style="color:var(--green)">{{ refeicoes|selectattr('ativa')|list|length }}</span>
+    <p>Liberadas</p>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:var(--red-light);color:var(--red);" aria-hidden="true">🔒</div>
+    <span class="kpi-valor" style="color:var(--red)">{{ refeicoes|rejectattr('ativa')|list|length }}</span>
+    <p>Bloqueadas</p>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:var(--yellow-light);color:var(--yellow);" aria-hidden="true">🕐</div>
+    <span class="kpi-valor" style="color:var(--yellow);font-size:var(--text-lg)">
+      {% set atual = refeicoes|selectattr('id', 'equalto', refeicao_atual_id)|first %}
+      {{ atual.nome if atual else 'Nenhuma' }}
+    </span>
+    <p>Acontecendo agora</p>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:var(--space-3);padding:var(--space-3)">
+  <h4 style="margin:0 0 var(--space-2)">Nova refeição</h4>
+  <form method="POST" action="{{ url_for('criar_refeicao') }}"
+        style="display:flex;gap:var(--space-2);flex-wrap:wrap;align-items:flex-end">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+    <div style="flex:2;min-width:180px">
+      <label class="form-label" for="nome">Nome</label>
+      <input type="text" id="nome" name="nome" class="input" placeholder="Ex: Almoço" required maxlength="50" />
+    </div>
+    <div style="flex:1;min-width:120px">
+      <label class="form-label" for="hora_inicio">Início</label>
+      <input type="time" id="hora_inicio" name="hora_inicio" class="input" required />
+    </div>
+    <div style="flex:1;min-width:120px">
+      <label class="form-label" for="hora_fim">Fim</label>
+      <input type="time" id="hora_fim" name="hora_fim" class="input" required />
+    </div>
+    <button type="submit" class="btn btn-primary">＋ Cadastrar</button>
+  </form>
+</div>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>Refeição</th>
+        <th>Início</th>
+        <th>Fim</th>
+        <th>Situação</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for refeicao in refeicoes %}
+      <tr {% if refeicao.id == refeicao_atual_id %}style="background:var(--green-light)"{% endif %}>
+        <form method="POST" action="{{ url_for('editar_refeicao', refeicao_id=refeicao.id) }}" id="form-editar-{{ refeicao.id }}">
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+        </form>
+        <td>
+          <input type="text" name="nome" form="form-editar-{{ refeicao.id }}" class="input"
+                 value="{{ refeicao.nome }}" required maxlength="50" style="min-width:140px" />
+          {% if refeicao.id == refeicao_atual_id %}
+          <span class="badge badge-success" style="margin-left:6px">Agora</span>
+          {% endif %}
+        </td>
+        <td>
+          <input type="time" name="hora_inicio" form="form-editar-{{ refeicao.id }}" class="input"
+                 value="{{ refeicao.hora_inicio.strftime('%H:%M') }}" required />
+        </td>
+        <td>
+          <input type="time" name="hora_fim" form="form-editar-{{ refeicao.id }}" class="input"
+                 value="{{ refeicao.hora_fim.strftime('%H:%M') }}" required />
+        </td>
+        <td>
+          <span class="badge {{ 'badge-success' if refeicao.ativa else 'badge-danger' }}">
+            {{ '✔ Liberada' if refeicao.ativa else '✘ Bloqueada' }}
+          </span>
+        </td>
+        <td style="white-space:nowrap">
+          <button type="submit" form="form-editar-{{ refeicao.id }}" class="btn btn-primary btn-sm">Salvar</button>
+
+          <form method="POST" action="{{ url_for('alternar_refeicao', refeicao_id=refeicao.id) }}" style="display:inline">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+            <button type="submit" class="btn btn-sm {{ 'btn-danger' if refeicao.ativa else 'btn-outline' }}">
+              {{ 'Bloquear' if refeicao.ativa else 'Liberar' }}
+            </button>
+          </form>
+
+          <form method="POST" action="{{ url_for('excluir_refeicao', refeicao_id=refeicao.id) }}" style="display:inline"
+                onsubmit="return confirm('Excluir a refeição {{ refeicao.nome }}?')">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+            <button type="submit" class="btn btn-outline btn-sm">Excluir</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="table-empty">
+        Nenhuma refeição cadastrada — enquanto isso, a catraca recusa todas as leituras.
+      </td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
